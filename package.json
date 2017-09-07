@@ -2,7 +2,7 @@
   "name": "vue-music",
   "version": "1.0.0",
   "description": "音乐播放器",
-  "author": "ustbhuangyi <280309453@qq.com>",
+  "author": "xiaoyexiang <xiaoyexiang@126.com>",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -18,7 +18,7 @@
     "vue-lazyload": "1.0.3",
     "axios": "^0.16.1",
     "jsonp": "0.2.1",
-    "better-scroll": "^0.1.15"
+    "better-scroll": "^1.2.3"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
