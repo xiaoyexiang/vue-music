@@ -31,7 +31,6 @@
       }
     },
     created: function () {
-      console.log(this.singer)
       this._getSingerDetail()
     },
     methods: {

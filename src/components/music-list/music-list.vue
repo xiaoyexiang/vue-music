@@ -14,7 +14,7 @@
       <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
-    <scroll :data="songs" class="list" ref="list">
+    <scroll :listen-scroll="listenScroll" :probe-type="probeType" :data="songs" class="list" ref="list">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -46,6 +46,10 @@
       bgStyle() {
         return `background-image: url(${this.bgImage})`
       }
+    },
+    created(){
+      this.listenScroll = true
+      this.probeType = 3
     },
     mounted() {
       this.imageHeight = this.$refs.bgImage.clientHeight
@@ -96,7 +100,6 @@
       color: $color-text
     .bg-image
       position: relative
-      z-index: 10
       width: 100%
       height: 0
       padding-top: 70%
