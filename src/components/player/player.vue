@@ -1,6 +1,6 @@
 <template>
-  <div class="player" v-show="playlist.length">
-    <div class="normal-player">
+  <div class="player" v-show="playlist.length>0">
+    <div class="normal-player" v-show="fullScreen">
       播放器
     </div>
     <div class="mini-player" v-show="!fullScreen"></div>
@@ -11,6 +11,9 @@
   import {mapGetters} from 'vuex'
 
   export default {
+    mounted: function() {
+      console.log(this.playlist)
+    },
     computed: {
       ...mapGetters([
         'fullScreen',
