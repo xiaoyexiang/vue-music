@@ -52,13 +52,13 @@
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
+            <div class="icon i-left" :class="disabledCls">
               <i @click="prev" class="icon-prev"></i>
             </div>
-            <div class="icon i-center">
+            <div class="icon i-center" :class="disabledCls">
               <i @click="togglePlaying" :class="playIcon"></i>
             </div>
-            <div class="icon i-right">
+            <div class="icon i-right" :class="disabledCls">
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
@@ -117,6 +117,9 @@
       },
       miniIcon() {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+      },
+      disabledCls() {
+        return this.songReady ? '' : 'disable'
       },
       ...mapGetters([
         'fullScreen',
@@ -179,6 +182,7 @@
         this.next()
       },
       error() {
+        this.songReady = true
       },
       togglePlaying() {
         if (!this.songReady) {
@@ -410,7 +414,17 @@
             flex: 1
             color: $color-theme
             &.disable
+              position: relative
               color: $color-theme-d
+              &::before
+                content: ''
+                position: absolute
+                top: 0
+                left: 0
+                right: 0
+                bottom: 0
+                z-index: 1
+                margin: auto
             i
               font-size: 30px
           .i-left
