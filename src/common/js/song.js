@@ -1,5 +1,6 @@
 import {getLyric} from 'api/song'
 import {ERR_OK} from 'api/config'
+import {Base64} from 'js-base64'
 
 // 创建一个对象工厂
 export default class Song {
@@ -22,10 +23,8 @@ export default class Song {
     return new Promise((resolve, reject) => {
       getLyric(this.mid).then((res) => {
         if (res.retcode === ERR_OK) {
-          this.lyric = res.lyric
-          console.log(this.lyric)
-          // this.lyric = Base64.decode(res.lyric)
-          // resolve(this.lyric)
+          this.lyric = Base64.decode(res.lyric)
+          resolve(this.lyric)
         } else {
           reject('no lyric')
         }
