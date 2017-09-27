@@ -31,7 +31,7 @@
               </div>
             </div>
             <div class="playing-lyric-wrapper">
-              <div class="playing-lyric"></div>
+              <div class="playing-lyric">{{playingLyric}}</div>
             </div>
           </div>
 
@@ -227,6 +227,9 @@
         const audio = this.$refs.audio
         audio.currentTime = 0
         audio.play()
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       },
       error() {
         this.songReady = true
@@ -254,18 +257,25 @@
           return
         }
         this.setPlayingState(!this.playing)
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
       },
       prev() {
         if (!this.songReady) {
           return
         }
-        let index = this.currentIndex - 1
-        if (index === -1) {
-          index = this.playlist.length - 1
-        }
-        this.setCurrentIndex(index)
-        if (!this.playing) {
-          this.togglePlaying()
+        if (this.playlist.length === 1) {
+          this.loop()
+        } else {
+          let index = this.currentIndex - 1
+          if (index === -1) {
+            index = this.playlist.length - 1
+          }
+          this.setCurrentIndex(index)
+          if (!this.playing) {
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -273,13 +283,17 @@
         if (!this.songReady) {
           return
         }
-        let index = this.currentIndex + 1
-        if (index === this.playlist.length) {
-          index = 0
-        }
-        this.setCurrentIndex(index)
-        if (!this.playing) {
-          this.togglePlaying()
+        if (this.playlist.length === 1) {
+          this.loop()
+        } else {
+          let index = this.currentIndex + 1
+          if (index === this.playlist.length) {
+            index = 0
+          }
+          this.setCurrentIndex(index)
+          if (!this.playing) {
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -291,6 +305,9 @@
         this.$refs.audio.currentTime = currentTime
         if (!this.playing) {
           this.togglePlaying()
+        }
+        if (this.currentLyric) {
+          this.currentLyric.seek(currentTime * 1000)
         }
       },
       format(interval) {
@@ -346,6 +363,8 @@
       },
       middleTouchStart(e) {
         this.touch.initiated = true
+        // 用来判断是否是一次移动
+        this.touch.moved = false
         const touch = e.touches[0]
         this.touch.startX = touch.pageX
         this.touch.startY = touch.pageY
@@ -360,6 +379,10 @@
         if (Math.abs(deltaY) - Math.abs(deltaX) > 0) {
           return
         }
+        if (!this.touch.moved) {
+          this.touch.moved = true
+        }
+
         const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
         const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
 
@@ -370,6 +393,10 @@
         this.$refs.middleL.style[transitionDuration] = 0
       },
       middleTouchEnd() {
+        if (!this.touch.moved) {
+          return
+        }
+
         const time = 300
         let offsetWidth
         let opacity
@@ -393,7 +420,7 @@
             opacity = 0
           }
         }
-        console.log(offsetWidth)
+
         this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
         this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
         this.$refs.middleL.style.opacity = opacity
@@ -413,10 +440,10 @@
           return
         }
         const audio = this.$refs.audio
-        this.$nextTick(() => {
+        setTimeout(() => {
           audio.play()
           this.getLyric()
-        })
+        }, 1000)
       },
       playing(newPlaying) {
         const audio = this.$refs.audio
