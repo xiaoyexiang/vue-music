@@ -1,9 +1,8 @@
 <template>
   <transition name="slide">
-    <MusicLise :title="title" :bg-image="bgImage" :songs="songs">
-    </MusicLise>
+    <music-lise :title="title" :bg-image="bgImage" :songs="songs">
+    </music-lise>
   </transition>
-
 </template>
 
 <script type="text/ecmascript-6">
