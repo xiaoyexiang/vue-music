@@ -4,7 +4,7 @@
       <ul>
         <li class="item" v-for="item in topList">
           <div class="icon">
-            <img width="100" height="100" :src="item.picUrl"/>
+            <img width="100" height="100" v-lazy="item.picUrl"/>
           </div>
           <ul class="songlist">
             <li class="song" v-for="(song, index) in item.songList">
@@ -14,7 +14,8 @@
           </ul>
         </li>
       </ul>
-      <div class="loading-container">
+      <div class="loading-container" v-show="!topList.length">
+        <loading></loading>
       </div>
     </Scroll>
   </div>
@@ -24,8 +25,11 @@
   import {getTopList} from 'api/rank'
   import {ERR_OK} from 'api/config'
   import Scroll from 'base/scroll/scroll'
+  import Loading from 'base/loading/loading'
+  import {playlistMixin} from 'common/js/mixin'
 
   export default {
+    mixins: [playlistMixin],
     data() {
       return {
         topList: []
@@ -35,6 +39,11 @@
       this._getTopList()
     },
     methods: {
+      handlePlaylist(playlist) {
+        const bottom = playlist.length ? '60px' : '0'
+        this.$refs.rank.style.bottom = bottom
+        this.$refs.toplist.refresh()
+      },
       _getTopList() {
         getTopList().then((res) => {
           if (res.code === ERR_OK) {
@@ -45,7 +54,8 @@
       }
     },
     components: {
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>
