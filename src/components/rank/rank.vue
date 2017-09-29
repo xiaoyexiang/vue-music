@@ -1,27 +1,53 @@
 <template>
   <div class="rank" ref="rank">
-    <div class="toplist" ref="toplist">
+    <Scroll :data="topList" class="toplist" ref="toplist">
       <ul>
-        <li class="item">
+        <li class="item" v-for="item in topList">
           <div class="icon">
-            <img width="100" height="100" src=""/>
+            <img width="100" height="100" :src="item.picUrl"/>
           </div>
           <ul class="songlist">
-            <li class="song">
-              <span>1</span>
-              <span>1</span>
+            <li class="song" v-for="(song, index) in item.songList">
+              <span>{{index + 1}}</span>
+              <span>{{song.songname}}-{{song.singername}}</span>
             </li>
           </ul>
         </li>
       </ul>
       <div class="loading-container">
       </div>
-    </div>
+    </Scroll>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-    export default {}
+  import {getTopList} from 'api/rank'
+  import {ERR_OK} from 'api/config'
+  import Scroll from 'base/scroll/scroll'
+
+  export default {
+    data() {
+      return {
+        topList: []
+      }
+    },
+    created() {
+      this._getTopList()
+    },
+    methods: {
+      _getTopList() {
+        getTopList().then((res) => {
+          if (res.code === ERR_OK) {
+            console.log(res.data.topList)
+            this.topList = res.data.topList
+          }
+        })
+      }
+    },
+    components: {
+      Scroll
+    }
+  }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
