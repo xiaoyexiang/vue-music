@@ -9,7 +9,7 @@
           <h2 class="title">热门搜索</h2>
           <ul>
             <li class="item" v-for="item in hotKey">
-              <span v-text="item.k"></span>
+              <span v-text="item.k" @click="addQuery(item.k)"></span>
             </li>
           </ul>
         </div>
@@ -33,6 +33,9 @@
       }
     },
     methods: {
+      addQuery(query) {
+        this.$refs.searchBox.setQuery(query)
+      },
       _getHotKey() {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
