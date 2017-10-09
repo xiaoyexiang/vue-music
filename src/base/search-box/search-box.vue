@@ -19,6 +19,11 @@
         query: ''
       }
     },
+    created() {
+      this.$watch('query', (newQuery) => {
+        this.$emit('query', newQuery)
+      })
+    },
     methods: {
       clear() {
         this.query = ''
