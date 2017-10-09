@@ -3,7 +3,7 @@
     <div class="search-box-wrapper">
       <search-box ref="searchBox"></search-box>
     </div>
-    <div class="shortcut-wrapper">
+    <div class="shortcut-wrapper" style="display: none">
       <div class="shortcut">
         <div class="hot-key">
           <h2 class="title">热门搜索</h2>
@@ -15,11 +15,15 @@
         </div>
       </div>
     </div>
+    <div class="search-result">
+      <suggest></suggest>
+    </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import SearchBox from 'base/search-box/search-box'
+  import Suggest from 'components/suggest/suggest'
   import {getHotKey} from 'api/search'
   import {ERR_OK} from 'api/config'
 
@@ -45,7 +49,8 @@
       }
     },
     components: {
-      SearchBox
+      SearchBox,
+      Suggest
     }
   }
 </script>
