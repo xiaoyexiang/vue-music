@@ -6,7 +6,7 @@
           @scrollToEnd="searchMore"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result">
+      <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -28,6 +28,8 @@
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
+  import Singer from 'common/js/singer'
+  import {mapMutations} from 'vuex'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20
@@ -52,6 +54,19 @@
       }
     },
     methods: {
+      selectItem(item) {
+        console.log(item)
+        const singer = new Singer({
+          id: item.singermid,
+          name: item.singername
+        })
+        if (item.type === TYPE_SINGER) {
+          this.$router.push({
+            path: `search/${singer.id}`
+          })
+          this.setSinger(singer)
+        }
+      },
       search() {
         this.page = 1
         this.hasMore = true
@@ -68,7 +83,6 @@
           return
         }
         this.page++
-        console.log(this.page)
 
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
@@ -79,7 +93,7 @@
       },
       _checkMore(data) {
         const song = data.song
-        console.log(data)
+
         if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
           this.hasMore = true
         }
@@ -116,7 +130,10 @@
           }
         })
         return ret
-      }
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      })
     },
     watch: {
       query(newQuery) {
