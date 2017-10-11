@@ -74,6 +74,8 @@
         } else {
           this.insertSong(item)
         }
+
+        this.$emit('select')
       },
       listScroll() {
         this.$emit('listScroll')
@@ -108,7 +110,6 @@
         if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
           this.hasMore = false
         }
-        console.log(this.hasMore)
       },
       getIconCls(item) {
         if (item.type === TYPE_SINGER) {
