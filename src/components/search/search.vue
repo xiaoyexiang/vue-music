@@ -5,13 +5,24 @@
     </div>
     <div class="shortcut-wrapper" v-show="!query">
       <div class="shortcut">
-        <div class="hot-key">
-          <h2 class="title">热门搜索</h2>
-          <ul>
-            <li class="item" v-for="item in hotKey">
-              <span v-text="item.k" @click="addQuery(item.k)"></span>
-            </li>
-          </ul>
+        <div>
+          <div class="hot-key">
+            <h2 class="title">热门搜索</h2>
+            <ul>
+              <li class="item" v-for="item in hotKey">
+                <span v-text="item.k" @click="addQuery(item.k)"></span>
+              </li>
+            </ul>
+          </div>
+          <div class="search-history" v-show="searchHistory.length">
+            <h2 class="title">
+              <span class="text">搜索历史</span>
+              <span @click="" class="clear">
+                <i class="icon-clear"></i>
+              </span>
+            </h2>
+            <search-list :searches="searchHistory"></search-list>
+          </div>
         </div>
       </div>
     </div>
@@ -25,9 +36,10 @@
 <script type="text/ecmascript-6">
   import SearchBox from 'base/search-box/search-box'
   import Suggest from 'components/suggest/suggest'
+  import SearchList from 'base/search-list/search-list'
   import {getHotKey} from 'api/search'
   import {ERR_OK} from 'api/config'
-  import {mapActions} from 'vuex'
+  import {mapActions, mapGetters} from 'vuex'
 
   export default {
     created() {
@@ -38,6 +50,11 @@
         hotKey: [],
         query: ''
       }
+    },
+    computed: {
+      ...mapGetters([
+        'searchHistory'
+      ])
     },
     methods: {
       addQuery(query) {
@@ -65,7 +82,8 @@
     },
     components: {
       SearchBox,
-      Suggest
+      Suggest,
+      SearchList
     }
   }
 </script>
