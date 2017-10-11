@@ -17,7 +17,7 @@
           <div class="search-history" v-show="searchHistory.length">
             <h2 class="title">
               <span class="text">搜索历史</span>
-              <span @click="" class="clear">
+              <span @click="deleteAll" class="clear">
                 <i class="icon-clear"></i>
               </span>
             </h2>
@@ -69,6 +69,9 @@
       saveSearch() {
         this.saveSearchHistory(this.query)
       },
+      deleteAll() {
+        this.clearSearchHistory()
+      },
       _getHotKey() {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
@@ -78,7 +81,8 @@
       },
       ...mapActions([
         'saveSearchHistory',
-        'deleteSearchHistory'
+        'deleteSearchHistory',
+        'clearSearchHistory'
       ])
     },
     components: {
