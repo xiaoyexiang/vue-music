@@ -3,7 +3,9 @@
           ref="suggest"
           :data="result"
           :pullup="pullup"
+          :beforeScroll="beforeScroll"
           @scrollToEnd="searchMore"
+          @beforeScroll="listScroll"
   >
     <ul class="suggest-list">
       <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
@@ -14,17 +16,20 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
-      <li class="loading-wrapper">
-        <loading v-show="hasMore" title=""></loading>
+      <li class="loading-wrapper" v-show="hasMore">
+        <loading title=""></loading>
       </li>
     </ul>
-    <div class="no-result-wrapper" v-show="!hasMore"></div>
+    <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+      <no-result title="抱歉，暂无搜索结果～"></no-result>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
+  import NoResult from 'base/no-result/no-result'
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
@@ -49,8 +54,9 @@
       return {
         page: 1,
         result: [],
+        hasMore: true,
         pullup: true,
-        hasMore: true
+        beforeScroll: true
       }
     },
     methods: {
@@ -68,6 +74,9 @@
         } else {
           this.insertSong(item)
         }
+      },
+      listScroll() {
+        this.$emit('listScroll')
       },
       search() {
         this.page = 1
@@ -97,8 +106,9 @@
         const song = data.song
 
         if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
-          this.hasMore = true
+          this.hasMore = false
         }
+        console.log(this.hasMore)
       },
       getIconCls(item) {
         if (item.type === TYPE_SINGER) {
@@ -147,7 +157,8 @@
     },
     components: {
       Scroll,
-      Loading
+      Loading,
+      NoResult
     }
   }
 </script>
