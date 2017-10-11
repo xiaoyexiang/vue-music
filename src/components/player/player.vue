@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <Scroll class="middle-r" :data="currentLyric && currentLyric.lines" ref="lyricList">
+          <scroll class="middle-r" :data="currentLyric && currentLyric.lines" ref="lyricList">
             <div class="lyric-wrapper">
               <div v-if="currentLyric">
                 <p ref="lyricLine"
@@ -44,7 +44,7 @@
                    v-for="(line,index) in currentLyric.lines">{{line.txt}}</p>
               </div>
             </div>
-          </Scroll>
+          </scroll>
         </div>
 
         <div class="bottom">
@@ -438,6 +438,14 @@
       currentSong(newSong, oldSong) {
         if (newSong.id === oldSong.id) {
           return
+        }
+
+        // 如果从搜索列表重复进入一首歌需要重制歌词
+        if (this.currentLyric) {
+          this.currentLyric.stop()
+          this.currentTime = 0
+          this.playingLyric = ''
+          this.currentLineNum = 0
         }
         const audio = this.$refs.audio
         setTimeout(() => {

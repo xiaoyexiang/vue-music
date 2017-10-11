@@ -75,7 +75,7 @@
           this.insertSong(item)
         }
 
-        this.$emit('select')
+        this.$emit('select', item)
       },
       listScroll() {
         this.$emit('listScroll')
@@ -124,6 +124,9 @@
         } else {
           return `${item.name}-${item.singer}`
         }
+      },
+      refresh() {
+        this.$refs.suggest.refresh()
       },
       _genResult(data) {
         let ret = []
