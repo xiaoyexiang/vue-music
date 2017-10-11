@@ -8,7 +8,6 @@
         </span>
       </li>
     </ul>
-
   </div>
 </template>
 
