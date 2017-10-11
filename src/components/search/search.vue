@@ -21,7 +21,7 @@
                 <i class="icon-clear"></i>
               </span>
             </h2>
-            <search-list :searches="searchHistory"></search-list>
+            <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearchHistory"></search-list>
           </div>
         </div>
       </div>
@@ -77,7 +77,8 @@
         })
       },
       ...mapActions([
-        'saveSearchHistory'
+        'saveSearchHistory',
+        'deleteSearchHistory'
       ])
     },
     components: {
