@@ -3,11 +3,11 @@
     <div class="playlist" v-show="showFlag" @click.self="hide">
       <div class="list-wrapper">
         <div class="list-header">
-          <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
+          <h2 class="title">
+            <i class="icon" :class="iconMode" @click.stop="changeMode"></i>
+            <span class="text" v-text="modeText"></span>
             <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
-          </h1>
+          </h2>
         </div>
         <scroll ref="listContent" class="list-content" :data="sequenceList">
           <ul name="list" tag="ul">
@@ -40,24 +40,23 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters, mapMutations, mapActions} from 'vuex'
+  import {mapActions} from 'vuex'
   import {playMode} from 'common/js/config'
   import Scroll from 'base/scroll/scroll'
   import Confirm from 'base/confirm/confirm'
+  import {playerMixin} from 'common/js/mixin'
 
   export default {
+    mixins: [playerMixin],
     data() {
       return {
         showFlag: false
       }
     },
     computed: {
-      ...mapGetters([
-        'sequenceList',
-        'currentSong',
-        'mode',
-        'playlist'
-      ])
+      modeText() {
+        return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.loop ? '单曲循环' : '随机播放'
+      }
     },
     methods: {
       show() {
@@ -77,13 +76,11 @@
         }
       },
       selectItem(item, index) {
-        console.log(item, index)
         if (this.mode === playMode.random) {
           index = this.playlist.findIndex((song) => {
             return song.id === item.id
           })
         }
-        console.log(index)
         this.setCurrentIndex(index)
         this.setPlayingState(true)
       },
@@ -99,6 +96,7 @@
       },
       confirmClear() {
         this.deleteSongList()
+        this.$refs.confirm.hide()
       },
       getCurrentIcon(item) {
         if (this.currentSong.id === item.id) {
@@ -106,10 +104,6 @@
         }
         return ''
       },
-      ...mapMutations({
-        setCurrentIndex: 'SET_CURRENT_INDEX',
-        setPlayingState: 'SET_PLAYING_STATE'
-      }),
       ...mapActions([
         'deleteSong',
         'deleteSongList'
