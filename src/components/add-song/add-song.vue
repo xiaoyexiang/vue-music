@@ -8,9 +8,9 @@
         </div>
       </div>
       <div class="search-box-wrapper">
-        <search-box ref="searchBox" placeholder="搜索歌曲"></search-box>
+        <search-box ref="searchBox" placeholder="搜索歌曲" @query="onQueryChange"></search-box>
       </div>
-      <div class="shortcut">
+      <div class="shortcut" v-show="!query">
         <div class="list-wrapper">
           <div ref="songList" class="list-scroll">
             <div class="list-inner">
@@ -23,19 +23,24 @@
           </div>
         </div>
       </div>
-      <div class="search-result">
+      <div class="search-result" v-show="query">
+        <suggest ref="suggest" :showSinger="showSinger" :query="query" @listScroll="blurInput" @select="saveSearch"></suggest>
       </div>
     </div>
   </transition>
 </template>
 
 <script type="text/ecmascript-6">
+  import {searchMixin} from 'common/js/mixin'
   import SearchBox from 'base/search-box/search-box'
+  import Suggest from 'components/suggest/suggest'
 
   export default {
+    mixins: [searchMixin],
     data() {
       return {
-        showFlag: false
+        showFlag: false,
+        showSinger: false
       }
     },
     methods: {
@@ -47,7 +52,8 @@
       }
     },
     components: {
-      SearchBox
+      SearchBox,
+      Suggest
     }
   }
 </script>
