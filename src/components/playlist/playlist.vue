@@ -6,7 +6,7 @@
           <h1 class="title">
             <i class="icon"></i>
             <span class="text"></span>
-            <span class="clear"><i class="icon-clear"></i></span>
+            <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
         <scroll ref="listContent" class="list-content" :data="sequenceList">
@@ -17,7 +17,7 @@
               <span class="like">
                 <i></i>
               </span>
-              <span class="delete">
+              <span class="delete" @click.stop="deleteOne(item)">
                 <i class="icon-delete"></i>
               </span>
             </li>
@@ -33,16 +33,17 @@
           <span>关闭</span>
         </div>
       </div>
-      <!--<confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>-->
+      <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>
       <!--<add-song ref="addSong"></add-song>-->
     </div>
   </transition>
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters, mapMutations} from 'vuex'
+  import {mapGetters, mapMutations, mapActions} from 'vuex'
   import {playMode} from 'common/js/config'
   import Scroll from 'base/scroll/scroll'
+  import Confirm from 'base/confirm/confirm'
 
   export default {
     data() {
@@ -63,16 +64,17 @@
         this.showFlag = true
         setTimeout(() => {
           this.$refs.listContent.refresh()
+          this.scrollToCurrent(this.currentSong)
         }, 20)
       },
       hide() {
         this.showFlag = false
       },
-      getCurrentIcon(item) {
-        if (this.currentSong.id === item.id) {
-          return 'icon-play'
+      deleteOne(item) {
+        this.deleteSong(item)
+        if (!this.playlist.length) {
+          this.hide()
         }
-        return ''
       },
       selectItem(item, index) {
         console.log(item, index)
@@ -81,14 +83,49 @@
             return song.id === item.id
           })
         }
+        console.log(index)
         this.setCurrentIndex(index)
+        this.setPlayingState(true)
+      },
+      scrollToCurrent(current) {
+        const index = this.sequenceList.findIndex((song) => {
+          return song.id === current.id
+        })
+
+        this.$refs.listContent.scrollToElement(this.$refs.listItem[index], 300)
+      },
+      showConfirm() {
+        this.$refs.confirm.show()
+      },
+      confirmClear() {
+        this.deleteSongList()
+      },
+      getCurrentIcon(item) {
+        if (this.currentSong.id === item.id) {
+          return 'icon-play'
+        }
+        return ''
       },
       ...mapMutations({
-        setCurrentIndex: 'SET_CURRENT_INDEX'
-      })
+        setCurrentIndex: 'SET_CURRENT_INDEX',
+        setPlayingState: 'SET_PLAYING_STATE'
+      }),
+      ...mapActions([
+        'deleteSong',
+        'deleteSongList'
+      ])
+    },
+    watch: {
+      currentSong(newSong, oldSong) {
+        if (!this.showFlag || newSong.id === oldSong.id) {
+          return
+        }
+        this.scrollToCurrent(newSong)
+      }
     },
     components: {
-      Scroll
+      Scroll,
+      Confirm
     }
   }
 </script>
@@ -157,6 +194,9 @@
             width: 20px
             font-size: $font-size-small
             color: $color-theme-d
+            &.icon-play + .text {
+              color: $color-text-l
+            }
           .text
             flex: 1
             no-wrap()
