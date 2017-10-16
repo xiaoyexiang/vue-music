@@ -50,7 +50,6 @@
         this.$router.push({
           path: `/rank/${item.id}`
         })
-        console.log(item)
         this.setTopList(item)
       },
       _getTopList() {
