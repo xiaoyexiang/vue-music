@@ -8,7 +8,7 @@
           @beforeScroll="listScroll"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
+      <li class="suggest-item" v-for="item in result" @click.stop="selectItem(item)">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
