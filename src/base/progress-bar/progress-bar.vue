@@ -42,9 +42,9 @@
         const deltaX = e.touches[0].pageX - this.touch.startX
         const offsetWidth = Math.min(this.$refs.progressBar.clientWidth - progressBtnWidth, Math.max(0, this.touch.left + deltaX))
         this._offset(offsetWidth)
-        this.$emit('percentChange', this._getPercent())
+        this.$emit('percentChanging', this._getPercent())
       },
-      progressTouchEnd(e) {
+      progressTouchEnd() {
         this.touch.initiated = false
         this._triggerPercent()
       },
@@ -55,6 +55,13 @@
         // 这里当我们点击 progressBtn 的时候，e.offsetX 获取不对
         // this._offset(e.offsetX)
         this._triggerPercent()
+      },
+      setProgressOffset(percent) {
+        if (percent >= 0 && !this.touch.initiated) {
+          const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
+          const offsetWidth = percent * barWidth
+          this._offset(offsetWidth)
+        }
       },
       _triggerPercent() {
         this.$emit('percentChange', this._getPercent())
@@ -70,11 +77,7 @@
     },
     watch: {
       percent(newPercent) {
-        if (newPercent >= 0 && !this.touch.initiated) {
-          const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-          const offsetWidth = newPercent * barWidth
-          this._offset(offsetWidth)
-        }
+        this.setProgressOffset(newPercent)
       }
     }
   }
