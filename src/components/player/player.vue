@@ -43,6 +43,9 @@
                    :class="{'current': currentLineNum === index}"
                    v-for="(line,index) in currentLyric.lines">{{line.txt}}</p>
               </div>
+              <div class="pure-music" v-show="isPureMusic">
+                <p>{{pureMusicLyric}}</p>
+              </div>
             </div>
           </scroll>
         </div>
@@ -55,7 +58,8 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"
+                            @percentChanging="onProgressBarChanging"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -125,6 +129,8 @@
   const transform = prefixStyle('transform')
   const transitionDuration = prefixStyle('transitionDuration')
 
+  const timeExp = /\[(\d{2}):(\d{2}):(\d{2})]/g
+
   export default {
     mixins: [playerMixin],
     data() {
@@ -135,7 +141,9 @@
         currentLyric: null,
         currentLineNum: 0,
         playingLyric: '',
-        currentShow: 'cd'
+        currentShow: 'cd',
+        isPureMusic: false,
+        pureMusicLyric: ''
       }
     },
     created() {
@@ -212,8 +220,14 @@
       ready() {
         this.songReady = true
         this.savePlayHistory(this.currentSong)
+
+        // 如果歌曲的播放晚于歌词的出现，播放的时候需要同步歌词
+        if (this.currentLyric && !this.isPureMusic) {
+          this.currentLyric.seek(this.currentTime * 1000)
+        }
       },
       end() {
+        this.currentTime = 0
         if (this.mode === playMode.loop) {
           this.loop()
         } else {
@@ -258,7 +272,6 @@
             this.togglePlaying()
           }
         }
-        this.songReady = false
       },
       next() {
         if (!this.songReady) {
@@ -277,19 +290,20 @@
             this.togglePlaying()
           }
         }
-        this.songReady = false
       },
       updateTime(e) {
         this.currentTime = e.target.currentTime
       },
-      onProgressBarChange(percent) {
-        const currentTime = this.currentSong.duration * percent
-        this.$refs.audio.currentTime = currentTime
-        if (!this.playing) {
+      onProgressBarChanging(percent) {
+        this._handleProgressBarChange(percent)
+        if (this.playing) {
           this.togglePlaying()
         }
-        if (this.currentLyric) {
-          this.currentLyric.seek(currentTime * 1000)
+      },
+      onProgressBarChange(percent) {
+        this._handleProgressBarChange(percent)
+        if (!this.playing) {
+          this.togglePlaying()
         }
       },
       format(interval) {
@@ -327,8 +341,15 @@
             return
           }
           this.currentLyric = new Lyric(lyric, this.handleLyric)
-          if (this.playing) {
-            this.currentLyric.play()
+          this.isPureMusic = !this.currentLyric.lines.length
+          if (this.isPureMusic) {
+            this.pureMusicLyric = this.currentLyric.lrc.replace(timeExp, '').trim()
+            this.playingLyric = this.pureMusicLyric
+          } else {
+            if (this.playing && this.songReady) {
+              // 这个时候有可能用户已经播放了歌曲，要切到对应位置
+              this.currentLyric.seek(this.currentTime * 1000)
+            }
           }
         }).catch(() => {
           this.currentLyric = null
@@ -337,6 +358,9 @@
         })
       },
       handleLyric({lineNum, txt}) {
+        if (!this.$refs.lyricLine) {
+          return
+        }
         this.currentLineNum = lineNum
         if (lineNum > 5) {
           let lineEl = this.$refs.lyricLine[lineNum - 5]
@@ -414,6 +438,13 @@
       showPlaylist() {
         this.$refs.playlist.show()
       },
+      _handleProgressBarChange(percent) {
+        const currentTime = this.currentSong.duration * percent
+        this.$refs.audio.currentTime = currentTime
+        if (this.currentLyric) {
+          this.currentLyric.seek(currentTime * 1000)
+        }
+      },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN'
       }),
@@ -429,10 +460,13 @@
         if (newSong.id === oldSong.id) {
           return
         }
+        this.songReady = false
 
         // 如果从搜索列表重复进入一首歌需要重制歌词
         if (this.currentLyric) {
           this.currentLyric.stop()
+          // 重置为null
+          this.currentLyric = null
           this.currentTime = 0
           this.playingLyric = ''
           this.currentLineNum = 0
@@ -445,6 +479,9 @@
         }, 1000)
       },
       playing(newPlaying) {
+        if (this.songReady) {
+          return
+        }
         const audio = this.$refs.audio
         this.$nextTick(() => {
           newPlaying ? audio.play() : audio.pause()
@@ -581,6 +618,11 @@
               font-size: $font-size-medium
               &.current
                 color: $color-text
+            .pure-music
+              padding-top: 50%
+              line-height: 32px
+              color: $color-text-l
+              font-size: $font-size-medium
       .bottom
         position: absolute
         bottom: 50px

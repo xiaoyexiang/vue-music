@@ -18,7 +18,8 @@
               <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
-          <scroll ref="searchList" class="list-scroll" :data="searchHistory" :refreshDelay="refreshDelay" v-if="currentIndex===1">
+          <scroll ref="searchList" class="list-scroll" :data="searchHistory" :refreshDelay="refreshDelay"
+                  v-if="currentIndex===1">
             <div class="list-inner">
               <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearchHistory"></search-list>
             </div>
@@ -75,6 +76,16 @@
       },
       show() {
         this.showFlag = true
+        this.refreshList()
+      },
+      refreshList() {
+        setTimeout(() => {
+          if (this.currentIndex === 0) {
+            this.$refs.songList.refresh()
+          } else {
+            this.$refs.searchList.refresh()
+          }
+        }, 20)
       },
       switchItem(index) {
         this.currentIndex = index
@@ -92,6 +103,13 @@
       ...mapActions([
         'insertSong'
       ])
+    },
+    watch: {
+      query(newVal) {
+        if (!newVal) {
+          this.refreshList()
+        }
+      }
     },
     components: {
       SearchBox,
