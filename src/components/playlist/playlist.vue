@@ -10,8 +10,8 @@
           </h2>
         </div>
         <scroll ref="listContent" class="list-content" :data="sequenceList" :refreshDelay="refreshDelay">
-          <ul name="list" tag="ul">
-            <li ref="listItem" class="item" v-for="(item, index) in sequenceList" @click="selectItem(item, index)">
+          <transition-group ref="list" name="list" tag="ul">
+            <li class="item" v-for="(item, index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
               <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
               <span class="like" @click.stop="toggleFavorite(item)">
@@ -21,7 +21,7 @@
                 <i class="icon-delete"></i>
               </span>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
           <div class="add" @click.stop="addSong">
@@ -91,7 +91,7 @@
           return song.id === current.id
         })
 
-        this.$refs.listContent.scrollToElement(this.$refs.listItem[index], 300)
+        this.$refs.listContent.scrollToElement(this.$refs.list.$el.children[index], 300)
       },
       showConfirm() {
         this.$refs.confirm.show()
@@ -119,7 +119,9 @@
         if (!this.showFlag || newSong.id === oldSong.id) {
           return
         }
-        this.scrollToCurrent(newSong)
+        setTimeout(() => {
+          this.scrollToCurrent(newSong)
+        }, 20)
       }
     },
     components: {

@@ -3,10 +3,10 @@
     <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
         <div v-if="recommends.length" class="slider-wrapper" ref="sliderWrapper">
-          <slider>
+          <slider ref="slider">
             <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl" @load="loadImage" class="needsclick">
+                <img :src="item.picUrl" @load="loadImage">
               </a>
             </div>
           </slider>
@@ -55,6 +55,11 @@
       this._getRecommend()
       this._getDiscList()
     },
+    activated() {
+      setTimeout(() => {
+        this.$refs.slider && this.$refs.slider.refresh()
+      }, 20)
+    },
     methods: {
       selectItem(item) {
         this.$router.push({
@@ -84,7 +89,9 @@
       loadImage() {
         if (!this.checkloaded) {
           this.checkloaded = true
-          this.$refs.scroll.refresh()
+          setTimeout(() => {
+            this.$refs.scroll.refresh()
+          }, 20)
         }
       },
       ...mapMutations({
