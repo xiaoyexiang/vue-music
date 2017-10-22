@@ -4,7 +4,7 @@ import axios from 'axios'
 const debug = process.env.NODE_ENV !== 'production'
 
 export function getLyric(mid) {
-  const url = debug ? '/api/lyric' : 'http://xiaoyexiang.com/music/api/lyric'
+  const url = debug ? '/api/lyric' : 'http://www.xiaoyexiang.com/music/api/lyric'
 
   const data = Object.assign({}, commonParams, {
     songmid: mid,

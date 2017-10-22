@@ -65,10 +65,10 @@
       })
     },
     activated() {
-      this.slider.enabled()
+      this.slider.enable()
       let pageIndex = this.slider.getCurrentPage().pageX
       if (pageIndex > this.dots.length) {
-        pageIndex = pageIndex & this.dots.length
+        pageIndex = pageIndex % this.dots.length
       }
       this.slider.goToPage(pageIndex, 0, 0)
       if (this.loop) {
@@ -79,7 +79,7 @@
         this._play()
       }
     },
-    destroyed() {
+    deactivated() {
       this.slider.disable()
       clearTimeout(this.timer)
     },
@@ -88,6 +88,12 @@
       clearTimeout(this.timer)
     },
     methods: {
+      refresh() {
+        if (this.slider) {
+          this._setSliderWidth(true)
+          this.slider.refresh()
+        }
+      },
       _setSliderWidth(isResize) {
         this.children = this.$refs.sliderGroup.children
 
@@ -114,15 +120,10 @@
             loop: this.loop,
             threshold: 0.3,
             speed: 400
-          },
-          click: true
-        })
-
-        this.slider.on('beforeScrollStart', () => {
-          if (this.autoPlay) {
-            clearTimeout(this.timer)
           }
         })
+
+        this.slider.on('scrollEnd', this._onScrollEnd)
 
         this.slider.on('touchend', () => {
           if (this.autoPlay) {
@@ -130,7 +131,11 @@
           }
         })
 
-        this.slider.on('scrollEnd', this._onScrollEnd())
+        this.slider.on('beforeScrollStart', () => {
+          if (this.autoPlay) {
+            clearTimeout(this.timer)
+          }
+        })
       },
       _onScrollEnd() {
         let pageIndex = this.slider.getCurrentPage().pageX
@@ -138,19 +143,12 @@
           pageIndex -= 1
         }
         this.currentPageIndex = pageIndex
-
         if (this.autoPlay) {
           this._play()
         }
       },
       _initDots() {
         this.dots = new Array(this.children.length)
-      },
-      refresh() {
-        if (this.slider) {
-          this._setSliderWidth(true)
-          this.slider.refresh()
-        }
       },
       _play() {
         let pageIndex = this.slider.getCurrentPage().pageX + 1
@@ -162,7 +160,6 @@
     }
   }
 </script>
-
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
@@ -191,7 +188,7 @@
       right: 0
       left: 0
       bottom: 12px
-      transform translateZ(1px)
+      transform: translateZ(1px)
       text-align: center
       font-size: 0
       .dot

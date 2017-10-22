@@ -1,4 +1,5 @@
 var express = require('express')
+var compression = require('compression')
 var config = require('./config/index')
 var axios = require('axios')
 
@@ -71,6 +72,7 @@ apiRoutes.get('/getCdInfo', function (req, res) {
 })
 
 app.use('/api', apiRoutes)
+app.use(compression())
 
 app.use(express.static('./dist'))
 
